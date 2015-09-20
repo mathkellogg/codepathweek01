@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:MovieViewController.swift">
-   </FileRef>
-   <FileRef
       location = "group:Rotten Tomatoes.xcodeproj">
    </FileRef>
    <FileRef
