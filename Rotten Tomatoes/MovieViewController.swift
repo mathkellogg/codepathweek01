@@ -50,11 +50,23 @@ func fixImageUrl(var url: String, thumb: Bool) -> String {
     return url
 }
 
+class MovieTabBar: UITabBar, UITabBarDelegate{
+    
+    var didSelectItemFunc:((String) -> (Void))?
+    
+    func tabBar(tabBar: UITabBar, didSelectItem item: UITabBarItem){
+        print("didselectitem")
+        self.didSelectItemFunc!(item.title!)
+    }
+}
+
 class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     @IBOutlet weak var movieTable: UITableView!
     var movies: NSArray = []
     var refreshControl: UIRefreshControl!
+    var dataset = "BoxOffice"
+    @IBOutlet weak var tabBar: MovieTabBar!
     
     var dropdown: UIWindow?
     var dropdownLabel: UILabel?
@@ -75,10 +87,27 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
         let progressHUD = JGProgressHUD(style: JGProgressHUDStyle.Dark)
         progressHUD.showInView(movieTable, animated: true)
 
+        // initialize tab
+        let tabBarHeight: CGFloat = 49.0
+        self.tabBar.frame = CGRectMake(0.0, UIScreen.mainScreen().bounds.height - tabBarHeight, UIScreen.mainScreen().bounds.width, tabBarHeight)
+        self.tabBar.didSelectItemFunc = { dset in
+            print("didselectitemfunc")
+            self.dataset = dset
+            progressHUD.showInView(self.movieTable, animated: true)
+            self.fetch_data(){
+                self.movieTable.reloadData()
+                //self.movieTable.setContentOffset(CGPointZero, animated:false)
+                progressHUD.dismiss()
+            }
+        }
+        
+        self.tabBar.delegate = self.tabBar
+        
         self.fetch_data(){
             self.movieTable.reloadData()
             progressHUD.dismiss()
         }
+        
         
     }
     
@@ -138,8 +167,18 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
             //animateDropdown("Connected to Network!")
         }
         
+        var url = NSURL(string: "https://gist.githubusercontent.com/timothy1ee/d1778ca5b944ed974db0/raw/489d812c7ceeec0ac15ab77bf7c47849f2d1eb2b/gistfile1.json")!
+
         // Code to refresh table view
-        let url = NSURL(string: "https://gist.githubusercontent.com/timothy1ee/d1778ca5b944ed974db0/raw/489d812c7ceeec0ac15ab77bf7c47849f2d1eb2b/gistfile1.json")!
+        switch self.dataset {
+            case "Box Office":
+                url = NSURL(string: "https://gist.githubusercontent.com/timothy1ee/d1778ca5b944ed974db0/raw/489d812c7ceeec0ac15ab77bf7c47849f2d1eb2b/gistfile1.json")!
+            case "DVDs":
+                url = NSURL(string: "https://gist.githubusercontent.com/timothy1ee/e41513a57049e21bc6cf/raw/b490e79be2d21818f28614ec933d5d8f467f0a66/gistfile1.json")!
+            default:
+                url = NSURL(string: "https://gist.githubusercontent.com/timothy1ee/d1778ca5b944ed974db0/raw/489d812c7ceeec0ac15ab77bf7c47849f2d1eb2b/gistfile1.json")!
+
+        }
         let request = NSURLRequest(URL: url)
         
         NSURLConnection.sendAsynchronousRequest(request, queue: NSOperationQueue.mainQueue()) { (response, dataOrNil, errorOrNil) -> Void in

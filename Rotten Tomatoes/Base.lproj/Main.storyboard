@@ -53,12 +53,22 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <tabBar contentMode="scaleToFill" id="wJv-q1-sdp" customClass="MovieTabBar" customModule="Rotten_Tomatoes" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="260" width="320" height="49"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <items>
+                                    <tabBarItem title="Box Office" image="Movie" id="EWW-6e-Zbx"/>
+                                    <tabBarItem title="DVDs" image="DVD" id="4rB-bm-Mtj"/>
+                                </items>
+                            </tabBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" id="xgp-Jf-hu1"/>
                     <connections>
                         <outlet property="movieTable" destination="a6J-2o-H1i" id="7QA-9p-R5k"/>
+                        <outlet property="tabBar" destination="wJv-q1-sdp" id="AV9-Mj-oZc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -129,4 +139,8 @@
             <point key="canvasLocation" x="275" y="378"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="DVD" width="24" height="24"/>
+        <image name="Movie" width="24" height="24"/>
+    </resources>
 </document>
