@@ -23,10 +23,11 @@ class MovieDetailViewController: UIViewController {
         //set text labels
         self.TitleLabel.text = movie["title"] as? String
         self.DescriptionLabel.text = movie["synopsis"] as? String
-                
+        self.DescriptionLabel.sizeToFit()
+        
         //draw blurry ForegroundImage
         let posterUrlString = movie.valueForKeyPath("posters.original") as! String
-        let posterUrl = NSURL(string: fixImageUrl(posterUrlString))
+        let posterUrl = NSURL(string: fixImageUrl(posterUrlString, thumb: false))
         let darkBlur = UIBlurEffect(style: UIBlurEffectStyle.Light)
         let blurView = UIVisualEffectView(effect: darkBlur)
         blurView.frame = ForegroundImage.bounds

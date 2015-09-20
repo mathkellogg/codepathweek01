@@ -8,26 +8,129 @@
 
 import UIKit
 import AFNetworking
+import JGProgressHUD
 
-func fixImageUrl(var url: String) -> String {
-    let range = url.rangeOfString(".*cloudfront.net/", options: .RegularExpressionSearch)
-    if let range = range {
-        url = url.stringByReplacingCharactersInRange(range, withString: "https://content6.flixster.com/")
+func connectedToNetwork() -> Bool {
+    
+    var zeroAddress = sockaddr_in()
+    zeroAddress.sin_len = UInt8(sizeofValue(zeroAddress))
+    zeroAddress.sin_family = sa_family_t(AF_INET)
+    
+    guard let defaultRouteReachability = withUnsafePointer(&zeroAddress, {
+        SCNetworkReachabilityCreateWithAddress(nil, UnsafePointer($0))
+    }) else {
+        return false
     }
-    return url.stringByReplacingOccurrencesOfString("_tmb.", withString: "_ori.")
+    
+    var flags : SCNetworkReachabilityFlags = []
+    if SCNetworkReachabilityGetFlags(defaultRouteReachability, &flags) {
+        return false
+    }
+    
+    let isReachable = flags.contains(.Reachable)
+    let needsConnection = flags.contains(.ConnectionRequired)
+    return (isReachable && !needsConnection)
+}
+
+func fixImageUrl(var url: String, thumb: Bool) -> String {
+    if !thumb {
+        url =  url.stringByReplacingOccurrencesOfString("_tmb.", withString: "_ori.")
+        let range = url.rangeOfString(".*cloudfront.net/", options: .RegularExpressionSearch)
+        if let range = range {
+            url = url.stringByReplacingCharactersInRange(range, withString: "https://content6.flixster.com/")
+        }
+    }
+    return url
 }
 
 class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     @IBOutlet weak var movieTable: UITableView!
     var movies: NSArray = []
+    var refreshControl: UIRefreshControl!
+    
+    var dropdown: UIWindow?
+    var dropdownLabel: UILabel?
+    var dropdownWindow: UIWindow?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        NSLog("view DID load")
+
+        self.initializeDropdown()
+        self.initializeRefreshControl()
+        
         movieTable.dataSource = self
         movieTable.delegate = self
         
+        let progressHUD = JGProgressHUD(style: JGProgressHUDStyle.Dark)
+        progressHUD.showInView(movieTable, animated: true)
+        NSLog("view DID load")
+
+        self.fetch_data(){
+            self.movieTable.reloadData()
+            progressHUD.dismiss()
+        }
+        
+    }
+    
+    func initializeDropdown(){
+        self.dropdown = UIWindow(frame: CGRectMake(0, -20, UIScreen.mainScreen().bounds.width, 20))
+        self.dropdown!.backgroundColor = UIColor.redColor()
+        self.dropdownLabel = UILabel(frame: self.dropdown!.bounds)
+        self.dropdownLabel!.textAlignment = NSTextAlignment.Center
+        self.dropdownLabel!.font = UIFont.systemFontOfSize(12)
+        self.dropdownLabel!.backgroundColor = UIColor.clearColor()
+        self.dropdown!.addSubview(self.dropdownLabel!)
+        self.dropdown!.windowLevel = UIWindowLevelStatusBar
+        self.dropdown!.makeKeyAndVisible()
+        self.dropdown!.resignKeyWindow()
+
+    }
+
+    func initializeRefreshControl(){
+        self.refreshControl = UIRefreshControl()
+        self.refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        self.refreshControl.addTarget(self, action: "refresh:", forControlEvents: UIControlEvents.ValueChanged)
+        self.movieTable.addSubview(refreshControl)
+    }
+    
+    func animateDropdown(text:String){
+        self.dropdownLabel!.text = text
+        let screenWidth = UIScreen.mainScreen().bounds.width
+        UIView.animateWithDuration(0.5, delay: 0.0, options: [], animations:{
+                self.dropdown!.frame = CGRectMake(0, 0, screenWidth, 20)
+            }, completion: {
+                finished in
+                UIView.animateWithDuration(0.5, delay: 2.0, options: [], animations: {
+                    self.dropdown!.frame = CGRectMake(0, -20, screenWidth, 20)
+                }, completion: {
+                    finished in
+                    //done yay!
+                })
+            }
+        )
+        
+    }
+    
+    func refresh(sender:AnyObject){
+        self.fetch_data(){
+            self.refreshControl!.endRefreshing()
+        }
+    }
+    
+    func fetch_data(callback: () -> Void){
+        
+        if !connectedToNetwork() {
+            NSLog("not connected.")
+            
+            animateDropdown("Unable to Connect to Network.")
+
+            //return
+        }
+        // Code to refresh table view
         let url = NSURL(string: "https://gist.githubusercontent.com/timothy1ee/d1778ca5b944ed974db0/raw/489d812c7ceeec0ac15ab77bf7c47849f2d1eb2b/gistfile1.json")!
         let request = NSURLRequest(URL: url)
         
@@ -41,18 +144,17 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
                 }
             }
             
-            //NSLog("response: \(self.movies)")
-            self.movieTable.reloadData()
-
+            NSLog("response: \(self.movies)")
+            callback()
+            
         }
-
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("com.mathewkellogg.MovieTableViewCell", forIndexPath: indexPath) as! MovieTableViewCell
-        let movie = movies[indexPath.row] as! NSDictionary
+        let movie = self.movies[indexPath.row] as! NSDictionary
         let posterUrlString = movie.valueForKeyPath("posters.original") as! String
-        let posterUrl = NSURL(string: fixImageUrl(posterUrlString))
+        let posterUrl = NSURL(string: fixImageUrl(posterUrlString, thumb: true))
         cell.TitleLabel.text = movie["title"] as? String
         cell.DescriptionLabel.text = movie["synopsis"] as? String
         cell.MovieImage.setImageWithURL(posterUrl!)
@@ -65,7 +167,6 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        // do something here
     }
     
     
