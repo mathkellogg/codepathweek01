@@ -10,27 +10,34 @@ import UIKit
 import AFNetworking
 import JGProgressHUD
 
-func connectedToNetwork() -> Bool {
+
+func isConnectedToNetwork() -> Bool {
+    var status:Bool = false
     
-    var zeroAddress = sockaddr_in()
-    zeroAddress.sin_len = UInt8(sizeofValue(zeroAddress))
-    zeroAddress.sin_family = sa_family_t(AF_INET)
+    let url = NSURL(string: "https://google.com")
+    let request = NSMutableURLRequest(URL: url!)
+    request.HTTPMethod = "HEAD"
+    request.cachePolicy = NSURLRequestCachePolicy.ReloadIgnoringLocalAndRemoteCacheData
+    request.timeoutInterval = 10.0
     
-    guard let defaultRouteReachability = withUnsafePointer(&zeroAddress, {
-        SCNetworkReachabilityCreateWithAddress(nil, UnsafePointer($0))
-    }) else {
-        return false
+    var response:NSURLResponse?
+    
+    do{
+        let _ = try NSURLConnection.sendSynchronousRequest(request, returningResponse: &response) as NSData?
+    }
+    catch let error as NSError
+    {
+        print(error.localizedDescription)
     }
     
-    var flags : SCNetworkReachabilityFlags = []
-    if SCNetworkReachabilityGetFlags(defaultRouteReachability, &flags) {
-        return false
+    if let httpResponse = response as? NSHTTPURLResponse {
+        if httpResponse.statusCode == 200 {
+            status = true
+        }
     }
-    
-    let isReachable = flags.contains(.Reachable)
-    let needsConnection = flags.contains(.ConnectionRequired)
-    return (isReachable && !needsConnection)
+    return status
 }
+
 
 func fixImageUrl(var url: String, thumb: Bool) -> String {
     if !thumb {
@@ -57,7 +64,7 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NSLog("view DID load")
+        //NSLog("view DID load")
 
         self.initializeDropdown()
         self.initializeRefreshControl()
@@ -67,7 +74,6 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
         
         let progressHUD = JGProgressHUD(style: JGProgressHUDStyle.Dark)
         progressHUD.showInView(movieTable, animated: true)
-        NSLog("view DID load")
 
         self.fetch_data(){
             self.movieTable.reloadData()
@@ -123,13 +129,15 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
     
     func fetch_data(callback: () -> Void){
         
-        if !connectedToNetwork() {
-            NSLog("not connected.")
+        if !isConnectedToNetwork() {
             
             animateDropdown("Unable to Connect to Network.")
 
             //return
+        } else {
+            //animateDropdown("Connected to Network!")
         }
+        
         // Code to refresh table view
         let url = NSURL(string: "https://gist.githubusercontent.com/timothy1ee/d1778ca5b944ed974db0/raw/489d812c7ceeec0ac15ab77bf7c47849f2d1eb2b/gistfile1.json")!
         let request = NSURLRequest(URL: url)
@@ -144,7 +152,7 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
                 }
             }
             
-            NSLog("response: \(self.movies)")
+            //NSLog("response: \(self.movies)")
             callback()
             
         }
