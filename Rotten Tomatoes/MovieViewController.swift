@@ -209,8 +209,10 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
         if !isConnectedToNetwork() {
             
             animateDropdown("Unable to Connect to Network.")
+            
+            self.refreshControl!.endRefreshing()
 
-            //return
+            return
         } else {
             //animateDropdown("Connected to Network!")
         }
@@ -252,6 +254,7 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
         backgroundview.backgroundColor = UIColor(red: 0.1, green: 0.9, blue: 0.5, alpha: 0.2)
         cell.selectedBackgroundView = backgroundview
         var movie: NSDictionary? = nil
+        print("\(searchActive)")
         if searchActive{
             movie = self.filteredMovies[indexPath.row] as! NSDictionary
         } else {
@@ -292,7 +295,6 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
     func searchBarTextDidEndEditing(searchBar: UISearchBar) {
         searchActive = false;
         searchBar.resignFirstResponder()
-        self.movieTable.reloadData()
         movieSearchBar.showsCancelButton = false
     }
     
@@ -341,14 +343,22 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
     // Pass the selected object to the new view controller.
         
         if segue.identifier == "moviedetail" {
-            
-        let vc = segue.destinationViewController as! MovieDetailViewController
         
-        let indexPath = movieTable.indexPathForCell(sender as! UITableViewCell)
-        let movie = movies[indexPath!.row] as! NSDictionary
-        vc.movie = movie
+            let vc = segue.destinationViewController as! MovieDetailViewController
+            
+            let indexPath = movieTable.indexPathForCell(sender as! UITableViewCell)
+            
+            var movie: NSDictionary? = nil
+            if searchActive{
+                movie = filteredMovies[indexPath!.row] as! NSDictionary
 
+            } else {
+                movie = movies[indexPath!.row] as! NSDictionary
+            }
+            vc.movie = movie
+            
         }
+
     }
     
 }
