@@ -50,23 +50,48 @@ func fixImageUrl(var url: String, thumb: Bool) -> String {
     return url
 }
 
-func setMoviePoster(image: UIImageView, url: NSURL){
+func fadeInImage(image: UIImageView, url: NSURL, placeholder: UIImage, callback:()->()){
     
-    let imageUrlRequest = NSURLRequest(URL: url)
-    let placeholder = UIImage(named: "PlaceholderPoster")
-    
+    let imageUrlRequest = NSURLRequest(URL: url, cachePolicy: NSURLRequestCachePolicy.ReturnCacheDataElseLoad, timeoutInterval: 60)
     image.setImageWithURLRequest(
         imageUrlRequest,
         placeholderImage: placeholder,
         success: { (request, response, rimage) -> Void in
+            print("image success for: \(url)")
             image.alpha = 0.0;
             image.image = rimage
             UIView.animateWithDuration(0.5, animations: {
                 image.alpha = 1.0
             })
+            callback()
         },
-        failure: { (request, response, error) -> Void in }
+        failure: { (request, response, error) -> Void in
+            print("image failure for: \(url) :-(")
+        }
     )
+    
+}
+
+func setMoviePoster(image: UIImageView, urlString: String, thumbOnly: Bool){
+    
+    let thumbURL = NSURL(string: fixImageUrl(urlString, thumb: true))
+    let fullURL = NSURL(string: fixImageUrl(urlString, thumb: false))
+    let placeholder = UIImage(named: "PlaceholderPoster")
+
+    print("thumbonly \(thumbOnly)")
+    fadeInImage(image, url:thumbURL!, placeholder: placeholder!){
+        print("callerback, youngin' \(thumbOnly)")
+
+    }
+    
+    if(!thumbOnly){
+        
+        fadeInImage(image, url: fullURL!, placeholder: placeholder!){
+            print("callerback 2, the remixxxx!~!!!")
+            
+        }
+    }
+
 }
 
 class MovieTabBar: UITabBar, UITabBarDelegate{
@@ -218,12 +243,14 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("com.mathewkellogg.MovieTableViewCell", forIndexPath: indexPath) as! MovieTableViewCell
+        let backgroundview = UIView()
+        backgroundview.backgroundColor = UIColor(red: 0.1, green: 0.9, blue: 0.5, alpha: 0.2)
+        cell.selectedBackgroundView = backgroundview
         let movie = self.movies[indexPath.row] as! NSDictionary
         let posterUrlString = movie.valueForKeyPath("posters.original") as! String
-        let posterUrl = NSURL(string: fixImageUrl(posterUrlString, thumb: true))
         cell.TitleLabel.text = movie["title"] as? String
         cell.DescriptionLabel.text = movie["synopsis"] as? String
-        setMoviePoster(cell.MovieImage, url: posterUrl!)
+        setMoviePoster(cell.MovieImage, urlString: posterUrlString, thumbOnly:true)
         return cell
     }
     

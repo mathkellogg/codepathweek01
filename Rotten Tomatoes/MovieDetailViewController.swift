@@ -27,15 +27,14 @@ class MovieDetailViewController: UIViewController {
         
         //draw blurry ForegroundImage
         let posterUrlString = movie.valueForKeyPath("posters.original") as! String
-        let posterUrl = NSURL(string: fixImageUrl(posterUrlString, thumb: false))
         let darkBlur = UIBlurEffect(style: UIBlurEffectStyle.Light)
         let blurView = UIVisualEffectView(effect: darkBlur)
         blurView.frame = ForegroundImage.bounds
         ForegroundImage.addSubview(blurView)
-        self.ForegroundImage.setImageWithURL(posterUrl!)
+        setMoviePoster(ForegroundImage, urlString: posterUrlString, thumbOnly: false)
 
         //draw blurry BackgroundImage
-        self.BackgroundImage.setImageWithURL(posterUrl!)
+        setMoviePoster(BackgroundImage, urlString: posterUrlString, thumbOnly: false)
 
     }
 
