@@ -4,7 +4,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
     </dependencies>
     <scenes>
-        <!--Movie View Controller-->
+        <!--Rotten Tomatoes-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="MovieViewController" customModule="Rotten_Tomatoes" customModuleProvider="target" sceneMemberID="viewController">
@@ -18,7 +18,7 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="com.mathewkellogg.MovieTableViewCell" rowHeight="97" id="kuL-fe-G44" customClass="MovieTableViewCell" customModule="Rotten_Tomatoes" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="28" width="320" height="97"/>
+                                        <rect key="frame" x="0.0" y="92" width="320" height="97"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="kuL-fe-G44" id="3FS-Lg-bLQ">
                                             <rect key="frame" x="0.0" y="0.0" width="287" height="96.5"/>
@@ -65,7 +65,7 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
-                    <navigationItem key="navigationItem" id="xgp-Jf-hu1"/>
+                    <navigationItem key="navigationItem" title="Rotten Tomatoes" id="xgp-Jf-hu1"/>
                     <connections>
                         <outlet property="movieTable" destination="a6J-2o-H1i" id="7QA-9p-R5k"/>
                         <outlet property="tabBar" destination="wJv-q1-sdp" id="AV9-Mj-oZc"/>
@@ -125,9 +125,10 @@
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="1t3-TY-RKQ" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="W65-cP-fdT">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" backIndicatorImage="Movie" id="W65-cP-fdT">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <color key="barTintColor" red="0.64339024359585828" green="1" blue="0.67974509067676925" alpha="1" colorSpace="calibratedRGB"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
