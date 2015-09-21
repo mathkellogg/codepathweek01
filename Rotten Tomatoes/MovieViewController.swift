@@ -50,6 +50,25 @@ func fixImageUrl(var url: String, thumb: Bool) -> String {
     return url
 }
 
+func setMoviePoster(image: UIImageView, url: NSURL){
+    
+    let imageUrlRequest = NSURLRequest(URL: url)
+    let placeholder = UIImage(named: "PlaceholderPoster")
+    
+    image.setImageWithURLRequest(
+        imageUrlRequest,
+        placeholderImage: placeholder,
+        success: { (request, response, rimage) -> Void in
+            image.alpha = 0.0;
+            image.image = rimage
+            UIView.animateWithDuration(0.5, animations: {
+                image.alpha = 1.0
+            })
+        },
+        failure: { (request, response, error) -> Void in }
+    )
+}
+
 class MovieTabBar: UITabBar, UITabBarDelegate{
     
     var didSelectItemFunc:((String) -> (Void))?
@@ -204,7 +223,7 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
         let posterUrl = NSURL(string: fixImageUrl(posterUrlString, thumb: true))
         cell.TitleLabel.text = movie["title"] as? String
         cell.DescriptionLabel.text = movie["synopsis"] as? String
-        cell.MovieImage.setImageWithURL(posterUrl!)
+        setMoviePoster(cell.MovieImage, url: posterUrl!)
         return cell
     }
     
