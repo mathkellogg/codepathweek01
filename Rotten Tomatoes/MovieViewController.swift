@@ -212,7 +212,7 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
             
             self.refreshControl!.endRefreshing()
 
-            return
+            //return
         } else {
             //animateDropdown("Connected to Network!")
         }

@@ -26,6 +26,10 @@ Time spent: 17hrs
 
 ### Walkthrough
 ![Video Walkthrough](http://g.recordit.co/Ot5RZj3WfP.gif)
+Shows: List of movies, view details, loading state, refresh to pull, all images fade in, load low res first, custom highlight color for cell, custom navigation bar color and text, tab for box office and dvd, search bar.
+
+![Video Walkthrough](https://github.com/mathkellogg/networkissues.gif)
+This was gif was taken with 100% packet loss. Shows: User sees error message when there is a network error. All images are cached. 
 
 Credits
 ---------
