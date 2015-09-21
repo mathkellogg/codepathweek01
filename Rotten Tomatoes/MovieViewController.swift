@@ -104,14 +104,17 @@ class MovieTabBar: UITabBar, UITabBarDelegate{
     }
 }
 
-class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
     
     @IBOutlet weak var movieTable: UITableView!
     var movies: NSArray = []
+    var filteredMovies: NSArray = []
     var refreshControl: UIRefreshControl!
     var dataset = "BoxOffice"
     @IBOutlet weak var tabBar: MovieTabBar!
+    @IBOutlet weak var movieSearchBar: UISearchBar!
     
+    var searchActive: Bool = false
     var dropdown: UIWindow?
     var dropdownLabel: UILabel?
     var dropdownWindow: UIWindow?
@@ -127,6 +130,7 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
         
         movieTable.dataSource = self
         movieTable.delegate = self
+        movieSearchBar.delegate = self
         
         let progressHUD = JGProgressHUD(style: JGProgressHUDStyle.Dark)
         progressHUD.showInView(movieTable, animated: true)
@@ -229,6 +233,7 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
             if let data = dataOrNil {
                 let object = try! NSJSONSerialization.JSONObjectWithData(data, options: [])
                 self.movies = object["movies"] as! NSArray
+                self.filteredMovies = self.movies
             } else {
                 if let error = errorOrNil {
                     NSLog("Error: \(error)")
@@ -246,16 +251,25 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
         let backgroundview = UIView()
         backgroundview.backgroundColor = UIColor(red: 0.1, green: 0.9, blue: 0.5, alpha: 0.2)
         cell.selectedBackgroundView = backgroundview
-        let movie = self.movies[indexPath.row] as! NSDictionary
-        let posterUrlString = movie.valueForKeyPath("posters.original") as! String
-        cell.TitleLabel.text = movie["title"] as? String
-        cell.DescriptionLabel.text = movie["synopsis"] as? String
+        var movie: NSDictionary? = nil
+        if searchActive{
+            movie = self.filteredMovies[indexPath.row] as! NSDictionary
+        } else {
+            movie = self.movies[indexPath.row] as! NSDictionary
+        }
+        let posterUrlString = movie!.valueForKeyPath("posters.original") as! String
+        cell.TitleLabel.text = movie!["title"] as? String
+        cell.DescriptionLabel.text = movie!["synopsis"] as? String
         setMoviePoster(cell.MovieImage, urlString: posterUrlString, thumbOnly:true)
         return cell
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return movies.count
+        if searchActive{
+            return filteredMovies.count
+        } else {
+            return movies.count
+        }
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
@@ -268,7 +282,55 @@ class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDat
         // Dispose of any resources that can be recreated.
     }
     
-    //delegate and datasource functions
+    //search bar stuff
+    
+    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+        searchActive = true;
+        movieSearchBar.showsCancelButton = true
+    }
+    
+    func searchBarTextDidEndEditing(searchBar: UISearchBar) {
+        searchActive = false;
+        searchBar.resignFirstResponder()
+        self.movieTable.reloadData()
+        movieSearchBar.showsCancelButton = false
+    }
+    
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        searchActive = false;
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        self.movieTable.reloadData()
+        movieSearchBar.showsCancelButton = false
+    }
+    
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        searchActive = false;
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        movieSearchBar.showsCancelButton = false
+    }
+    
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        filteredMovies = movies.filter({ (movie) -> Bool in
+            let movieDict = movie as! NSDictionary
+            let title = movieDict["title"] as! NSString
+            let range = title.rangeOfString(searchText, options: NSStringCompareOptions.CaseInsensitiveSearch)
+            return range.location != NSNotFound
+        })
+        if searchText == ""{
+            searchActive = false
+        }
+        /*
+        if(filteredMovies.count == 0){
+            searchActive = false;
+        } else {
+            searchActive = true;
+        }*/
+        self.movieTable.reloadData()
+    }
+
     
     
     // MARK: - Navigation

@@ -16,12 +16,20 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <searchBar key="tableHeaderView" contentMode="redraw" id="3z0-4Y-Qz3">
+                                    <rect key="frame" x="0.0" y="64" width="320" height="44"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                    <textInputTraits key="textInputTraits"/>
+                                    <connections>
+                                        <outlet property="delegate" destination="BYZ-38-t0r" id="W43-eR-W48"/>
+                                    </connections>
+                                </searchBar>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="com.mathewkellogg.MovieTableViewCell" rowHeight="97" id="kuL-fe-G44" customClass="MovieTableViewCell" customModule="Rotten_Tomatoes" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="92" width="320" height="97"/>
+                                        <rect key="frame" x="0.0" y="136" width="320" height="97"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="kuL-fe-G44" id="3FS-Lg-bLQ">
-                                            <rect key="frame" x="0.0" y="0.0" width="287" height="96.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="287" height="97"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="R4i-zd-8EM">
@@ -67,11 +75,21 @@
                     </view>
                     <navigationItem key="navigationItem" title="Rotten Tomatoes" id="xgp-Jf-hu1"/>
                     <connections>
+                        <outlet property="movieSearchBar" destination="3z0-4Y-Qz3" id="j6J-eB-S0W"/>
                         <outlet property="movieTable" destination="a6J-2o-H1i" id="7QA-9p-R5k"/>
+                        <outlet property="searchDisplayController" destination="eCU-J6-qsP" id="I2F-g2-8K4"/>
                         <outlet property="tabBar" destination="wJv-q1-sdp" id="AV9-Mj-oZc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <searchDisplayController id="eCU-J6-qsP">
+                    <connections>
+                        <outlet property="delegate" destination="BYZ-38-t0r" id="tef-Ni-qyY"/>
+                        <outlet property="searchContentsController" destination="BYZ-38-t0r" id="5z4-1e-pXy"/>
+                        <outlet property="searchResultsDataSource" destination="BYZ-38-t0r" id="rnx-xW-kDE"/>
+                        <outlet property="searchResultsDelegate" destination="BYZ-38-t0r" id="MsF-Nx-0a0"/>
+                    </connections>
+                </searchDisplayController>
             </objects>
             <point key="canvasLocation" x="740" y="358"/>
         </scene>
